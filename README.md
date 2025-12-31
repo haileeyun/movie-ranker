@@ -1,2 +1,2 @@
 # movie-ranker
-ranks movies against each other
+A movie ranking site based on head-to-head comparisons.
