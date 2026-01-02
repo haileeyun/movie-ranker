@@ -1,20 +1,15 @@
-import { supabase } from "./supabase";
+import { supabase } from "@/lib/supabase";
 
-export async function getTwoRandomMovies() {
+export async function getTwoWatchedMovies(sessionId: string) {
   const { data, error } = await supabase
-    .from("movies")
-    .select("*")
+    .from("watched_movies")
+    .select("movies(id, title, poster_path)")
+    .eq("session_id", sessionId)
     .limit(2);
 
-  if (error) {
-    console.error("Supabase error:", error);
-    throw new Error("failed to fetch movies");
+  if (error || !data || data.length < 2) {
+    return null;
   }
 
-  if (!data || data.length < 2) {
-    console.error("Not enough movies:", data);
-    throw new Error("not enough movies in database");
-  }
-
-  return data;
+  return data.map(row => row.movies);
 }
