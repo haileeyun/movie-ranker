@@ -1,29 +1,19 @@
-type MovieCardProps = {
-  movie: {
-    id: string;
-    title: string;
-    year: number | null;
-    poster_url: string | null;
-  };
-  onClick?: () => void;
-};
+import Image from "next/image";
+import Link from "next/link";
 
-export default function MovieCard({ movie, onClick }: MovieCardProps) {
+export default function MovieCard({ movie }) {
   return (
-    <div
-      onClick={onClick}
-      className="cursor-pointer rounded-lg border p-4 hover:shadow-lg transition"
-    >
-      {movie.poster_url && (
-        <img
-          src={movie.poster_url}
-          alt={movie.title}
-          className="w-full rounded mb-2"
-        />
-      )}
-      <h2 className="text-lg font-semibold">
-        {movie.title} {movie.year && `(${movie.year})`}
-      </h2>
-    </div>
+    <Link href={`/explore/${movie.id}`}>
+      <div className="group cursor-pointer">
+        <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg">
+          <Image
+            src={movie.poster_url}
+            alt={movie.title}
+            fill
+            className="object-cover group-hover:scale-105 transition"
+          />
+        </div>
+      </div>
+    </Link>
   );
 }

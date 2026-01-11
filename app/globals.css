@@ -24,3 +24,14 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.bucket-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  background: #222;
+  text-align: center;
+}
+.bucket-btn:hover {
+  background: #333;
+}

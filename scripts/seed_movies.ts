@@ -6,48 +6,48 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-const TMDB_API_KEY = process.env.TMDB_API_KEY!;
-const TMDB_BASE_URL = "https://api.themoviedb.org/3";
+const TMDB_KEY = process.env.TMDB_API_KEY!;
 
-async function fetchPopularMovies(page = 1) {
+async function fetchMovies(page: number) {
   const res = await fetch(
-    `${TMDB_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}&page=${page}`
+    `https://api.themoviedb.org/3/movie/popular?api_key=${TMDB_KEY}&page=${page}`
   );
 
   if (!res.ok) {
-    throw new Error("failed to fetch from TMDB");
+    throw new Error("Failed to fetch TMDB page " + page);
   }
 
-  const data = await res.json();
-  return data.results;
+  const json = await res.json();
+  return json.results;
 }
 
-async function seedMovies() {
-  console.log("🎬 seeding movies from TMDB...");
+async function seed() {
+  console.log("🎬 Seeding movies from TMDB...");
 
-  const movies = await fetchPopularMovies(1);
+  let allMovies: any[] = [];
 
-  const formattedMovies = movies.map((movie: any) => ({
+  for (let page = 1; page <= 5; page++) {
+    const movies = await fetchMovies(page);
+    allMovies.push(...movies);
+    console.log(`Fetched page ${page} (${movies.length} movies)`);
+  }
+
+  const formatted = allMovies.map(movie => ({
+    tmdb_id: movie.id,
     title: movie.title,
-    year: movie.release_date
-      ? parseInt(movie.release_date.split("-")[0])
-      : null,
-    poster_url: movie.poster_path
-      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-      : null,
-    elo_rating: 1500,
-    comparison_count: 0,
+    year: movie.release_date?.slice(0, 4),
+    poster_url: `https://image.tmdb.org/t/p/w500${movie.poster_path}`,
   }));
 
   const { error } = await supabase
     .from("movies")
-    .insert(formattedMovies);
+    .upsert(formatted, { onConflict: "tmdb_id" });
 
   if (error) {
-    console.error("❌ error inserting movies:", error);
+    console.error("❌ Error inserting movies:", error);
   } else {
-    console.log("✅ successfully seeded movies!");
+    console.log(`✅ Seeded ${formatted.length} movies`);
   }
 }
 
-seedMovies().catch(console.error);
+seed();

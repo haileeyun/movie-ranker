@@ -36,7 +36,7 @@ export default function MovieBattle({
           className="relative group"
         >
           <Image
-            src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
+            src={movie.poster_url}
             alt={movie.title}
             fill
             className="object-cover"

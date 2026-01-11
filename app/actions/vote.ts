@@ -17,14 +17,14 @@ export async function vote({
   const { data: movies } = await supabase
     .from("movies")
     .select("id, elo_rating")
-    .in("id", [movieAId, movieBId]);
+    .in("id", [parseInt(movieAId), parseInt(movieBId)]);
 
   if (!movies || movies.length !== 2) {
     throw new Error("Movies not found");
   }
 
-  const movieA = movies.find(m => m.id === movieAId)!;
-  const movieB = movies.find(m => m.id === movieBId)!;
+  const movieA = movies.find(m => m.id === parseInt(movieAId))!;
+  const movieB = movies.find(m => m.id === parseInt(movieBId))!;
 
   const result = calculateElo(
     movieA.elo_rating,
@@ -35,17 +35,17 @@ export async function vote({
   await supabase
     .from("movies")
     .update({ elo_rating: result.newRatingA })
-    .eq("id", movieAId);
+    .eq("id", parseInt(movieAId));
 
   await supabase
     .from("movies")
     .update({ elo_rating: result.newRatingB })
-    .eq("id", movieBId);
+    .eq("id", parseInt(movieBId));
 
   await supabase.from("comparisons").insert({
-    movie_a_id: movieAId,
-    movie_b_id: movieBId,
-    winner_id: winnerId,
+    movie_a_id: parseInt(movieAId),
+    movie_b_id: parseInt(movieBId),
+    winner_id: parseInt(winnerId),
     session_id: sessionId,
   });
 }
